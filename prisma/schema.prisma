@@ -1,0 +1,157 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Roles {
+  id        Int      @id @default(autoincrement())
+  role_name String   @unique
+  users     Users[]
+}
+
+model Users {
+  id                  Int                 @id @default(autoincrement())
+  username            String
+  email               String              @unique
+  password            String
+  role_id             Int
+  role                Roles               @relation(fields: [role_id], references: [id])
+
+  // Relations
+  profiles            Profiles?
+  balance             Balance?
+  balance_histories   Balance_History[]
+  stores              Stores[]
+  carts               Carts?
+  transactions        Transactions[]
+  store_confirmations Store_Confirmations[]
+}
+
+model Profiles {
+  id       Int    @id @default(autoincrement())
+  fullname String
+  address  String
+  email    String @unique
+  user_id  Int    @unique
+  user     Users  @relation(fields: [user_id], references: [id])
+}
+
+model Balance {
+  id      Int     @id @default(autoincrement())
+  amount  Decimal @default(0)
+  user_id Int     @unique
+  user    Users   @relation(fields: [user_id], references: [id])
+}
+
+model Balance_History {
+  id               Int      @id @default(autoincrement())
+  transaction_type String
+  amount           Decimal
+  date             DateTime @default(now())
+  user_id          Int
+  user             Users    @relation(fields: [user_id], references: [id])
+}
+
+model Stores {
+  id                  Int      @id @default(autoincrement())
+  profile_picture_url String?
+  store_name          String
+  user_id             Int
+  user                Users    @relation(fields: [user_id], references: [id])
+  products            Products[]
+}
+
+model Categories {
+  id            Int      @id @default(autoincrement())
+  category_name String   @unique
+  products      Products[]
+}
+
+model Products {
+  id                  Int                 @id @default(autoincrement())
+  product_name        String
+  description         String?
+  price               Decimal
+  stock               Int
+  store_id            Int
+  category_id         Int
+  store               Stores              @relation(fields: [store_id], references: [id])
+  category            Categories          @relation(fields: [category_id], references: [id])
+
+  cart_items          Cart_Items[]
+  transaction_details Transaction_Details[]
+}
+
+model Carts {
+  id          Int          @id @default(autoincrement())
+  user_id     Int          @unique
+  user        Users        @relation(fields: [user_id], references: [id])
+  cart_items  Cart_Items[]
+
+  transaction Transactions?
+}
+
+model Cart_Items {
+  id         Int      @id @default(autoincrement())
+  quantity   Int
+  cart_id    Int
+  product_id Int
+  cart       Carts    @relation(fields: [cart_id], references: [id])
+  product    Products @relation(fields: [product_id], references: [id])
+}
+
+model Transactions {
+  id                 Int                 @id @default(autoincrement())
+  user_id            Int
+  cart_id            Int?                @unique
+  total_price        Decimal // Tipe data diubah menjadi Decimal
+  transaction_status String              @default("pending")
+  created_at         DateTime            @default(now())
+  updated_at         DateTime            @updatedAt
+
+  user               Users               @relation(fields: [user_id], references: [id])
+  cart               Carts?              @relation(fields: [cart_id], references: [id])
+  details            Transaction_Details[]
+  payment            Payments?
+  confirmation       Store_Confirmations?
+}
+
+model Payments {
+  id               Int          @id @default(autoincrement())
+  payment_method   String
+  payment_date     DateTime     @default(now())
+  payment_amount   Decimal
+  payment_status   String
+  transaction_id   Int          @unique
+  transaction      Transactions @relation(fields: [transaction_id], references: [id])
+}
+
+model Transaction_Details {
+  id             Int          @id @default(autoincrement())
+  quantity       Int
+  subtotal       Decimal
+  transaction_id Int
+  product_id     Int
+  transaction    Transactions @relation(fields: [transaction_id], references: [id])
+  product        Products     @relation(fields: [product_id], references: [id])
+}
+
+model Store_Confirmations {
+  id                  Int          @id @default(autoincrement())
+  confirmation_status String
+  confirmation_date   DateTime     @default(now())
+  transaction_id      Int          @unique
+  user_id             Int
+  transaction         Transactions @relation(fields: [transaction_id], references: [id])
+  user                Users        @relation(fields: [user_id], references: [id])
+}
