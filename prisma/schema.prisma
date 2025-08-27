@@ -83,6 +83,7 @@ model Products {
   description         String?
   price               Decimal
   stock               Int
+  image               String
   store_id            Int
   category_id         Int
   store               Stores              @relation(fields: [store_id], references: [id])
