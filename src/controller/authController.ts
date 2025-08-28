@@ -49,11 +49,11 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
    console.log(chalk.cyan("User attempting to log in..."))
-   const { email, password} = req.body
+   const { username, password} = req.body
 
    try {
-      const user = await prisma.users.findUnique({
-         where: { email },
+      const user = await prisma.users.findFirst({
+         where: { username },
          include: { role: true }
       })
 
