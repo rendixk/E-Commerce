@@ -64,7 +64,6 @@ model Balance_History {
 
 model Stores {
   id                  Int      @id @default(autoincrement())
-  profile_picture_url String?
   store_name          String
   user_id             Int
   user                Users    @relation(fields: [user_id], references: [id])
