@@ -10,7 +10,6 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
-
 app.use('/', opening)
 app.use('/auth', authRoute)
 app.use('/users', userAuth)
