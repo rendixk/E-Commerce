@@ -14,4 +14,5 @@ app.use('/', opening)
 app.use('/auth', authRoute)
 app.use('/users', userAuth)
 app.use('/product', productRouter)
+
 export default app
