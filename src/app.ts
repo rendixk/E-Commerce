@@ -8,9 +8,10 @@ import productRouter from './route/productRoute.js'
 const app = express()
 const corsOption = {
    origin: '*',
-   methods: ["GET", "POST", "PUT", "DELETE"],
-   allowHeaders: ["Content-Type", "Authorization"],
-   credentials: true
+   methods: 'GET, HEAD, POST, PUT, DELETE',
+   allowHeaders: 'Content-Type, Authorization',
+   credentials: true,
+   optionSuccessStatus: 200
 }
 
 app.use(express.json())
