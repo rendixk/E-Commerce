@@ -7,10 +7,12 @@ import productRouter from './route/productRoute.js'
 
 const app = express()
 const corsOption = {
-   origin: 'http:localhost:5173',
+   origin: 'http://localhost:5173',
+   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+   allowedHeaders: ['Content-Type', 'Authorization'],
    credentials: true,
-   optionSuccessStatus: 200
-}
+   optionsSuccessStatus: 200
+ };
 
 app.use(express.json())
 app.use(cors(corsOption))
