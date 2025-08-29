@@ -11,18 +11,19 @@ export const register = async (req: Request, res: Response) => {
    const { username, email, password, role_name } = req.body
 
    try {
-      const existUsername = await prisma.users.findFirst({ where: { username } })
-      if(existUsername) {
-         console.log(chalk.bold.red("Failed: Username already in use"))
-         return res.status(404).json({ message: "Username already in use"})
-      }
+      const existingEmail = await prisma.users.findUnique({
+         where: { email: email }
+     });
+     if (existingEmail) {
+         return res.status(409).json({ message: "Email is already in use." });
+     }
 
-      const existEmail = await prisma.users.findFirst({ where: { email } })
-      if(existEmail) {
-         console.log(chalk.bold.red("Failed: Email already in use"))
-         return res.status(404).json({ message: "Email already in use"})
-      }
-
+     const existingUsername = await prisma.users.findFirst({
+         where: { username: username }
+     });
+     if (existingUsername) {
+         return res.status(409).json({ message: "Username is already taken." });
+     }
       const role = await prisma.roles.findUnique({ where: { role_name } })
       if(!role) {
          console.log('invalid role specified')
@@ -54,7 +55,7 @@ export const login = async (req: Request, res: Response) => {
    try {
       const user = await prisma.users.findFirst({
          where: { username },
-         include: { role: true }
+         include: { role: true, profiles: true }
       })
 
       if(!user) {

@@ -11,3 +11,13 @@ export const isSeller = (req: AuthRequest, res: Response, next: NextFunction) =>
       res.status(403).json({ message: "Forbidden: You do not have the required presmisson." })
    }
 }
+
+export const isbuyer = (req: AuthRequest, res: Response, next: NextFunction) => {
+   const userRole = req.user?.role
+
+   if (userRole === "buyer") {
+       next()
+   } else {
+       res.status(403).json({ message: "Forbidden: You do not have the required permission." });
+   }
+}
