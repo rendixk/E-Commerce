@@ -7,7 +7,7 @@ import productRouter from './route/productRoute.js'
 
 const app = express()
 const corsOption = {
-   origin: 'http://loaclhost:5173'
+   origin: 'http://localhost:5173'
 }
 
 app.use(express.json())
