@@ -6,9 +6,12 @@ import userAuth from './route/userRoute.js'
 import productRouter from './route/productRoute.js'
 
 const app = express()
+const corsOption = {
+   origin: 'http://loaclhost:5173'
+}
 
 app.use(express.json())
-app.use(cors())
+app.use(cors(corsOption))
 
 app.use('/', opening)
 app.use('/auth', authRoute)
