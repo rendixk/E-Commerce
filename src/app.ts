@@ -7,7 +7,7 @@ import productRouter from './route/productRoute.js'
 
 const app = express()
 const corsOption = {
-   origin: 'http://localhost:5173',
+   origin: '*',
    methods: ["GET", "POST", "PUT", "DELETE"],
    allowHeaders: ["Content-Type", "Authorization"],
    credentials: true
