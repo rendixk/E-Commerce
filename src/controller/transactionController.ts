@@ -11,7 +11,6 @@ export const createTransaction = async (req: AuthRequest, res: Response) => {
    }
 
    try {
-      // 1. Get user cart data
       const cart = await prisma.carts.findUnique({
          where: { user_id: userId },
          include: {
@@ -27,10 +26,8 @@ export const createTransaction = async (req: AuthRequest, res: Response) => {
          return res.status(404).json({ message: "Cart is empty" })
       }
 
-      // 2. calculate total price and check stock
       let total_price = 0
       const transaction_details_data = []
-      const update_product_stock_promised = []
 
       for (const item of cart.cart_items) {
          const product = item.product
@@ -43,25 +40,8 @@ export const createTransaction = async (req: AuthRequest, res: Response) => {
             quantity: item.quantity,
             subtotal: product.price.toNumber() * item.quantity
          })
-
-         //preparing promise for decrease product stock
-         update_product_stock_promised.push(
-            prisma.products.update({
-               where: { id: product.id },
-               data: { stock: { decrement: item.quantity } }
-            })
-         )
       }
 
-      // 3. Check buyer balance
-      const buyerBalance = await prisma.balance.findUnique({
-         where: { user_id: userId }
-      })
-      if(!buyerBalance || buyerBalance.amount.toNumber() < total_price) {
-         return res.status(404).json({ message: "Insufficient balance" })
-      }
-
-      // 4. create new transaction
       const transaction = await prisma.transactions.create({
          data: {
             user_id: userId,
@@ -76,28 +56,9 @@ export const createTransaction = async (req: AuthRequest, res: Response) => {
          }
       })
 
-      // 5. reduce user balance
-      await prisma.balance.update({
-         where: { user_id: userId },
-         data: { amount: { decrement: total_price } }
-      })
-
-      // 6. Create balance history
-      await prisma.balance_History.create({
-         data: {
-            user_id: userId,
-            transaction_type: "debit",
-            amount: total_price
-         }
-      })
-
-      // 7. clear cart
       await prisma.cart_Items.deleteMany({
          where: { cart_id: cart.id }
       })
-
-      // 8. decrease product stock
-      await prisma.$transaction(update_product_stock_promised)
 
       console.log("Transaction created successfully.")
       res.status(201).json({ message: "Transaction successfully", Transaction: transaction })
@@ -108,31 +69,73 @@ export const createTransaction = async (req: AuthRequest, res: Response) => {
    }
 }
 
-// function for confirm paymennt by seller
 export const confirmTransaction = async (req: AuthRequest, res: Response) => {
    console.log("Confirming transaction...")
-   const { transactionId } = req.body
+   const { transaction_id } = req.body
    const userId = req.user?.id
    const userRole = req.user?.role
 
-   if(!userId || userRole === 'seller' || !transactionId) {
-      return res.status(403).json({ message: "Forbidden: You do not have the required permission" })
+   if(!userId || userRole !== 'seller' || !transaction_id) {
+      return res.status(403).json({ message: "Forbidden: You do not have the required permission of seller." })
    }
 
    try {
       const transaction = await prisma.transactions.findUnique({
-         where: { id: parseInt(transactionId) }
+         where: { id: parseInt(transaction_id) },
+         include: { details: true }
       })
 
       if(!transaction) {
          return res.status(404).json({ message: "Transaction not found" })
       }
 
-      if(transaction.transaction_status === 'success') {
-         return res.status(400).json({ message: "Transaction is already success" })
+      if(transaction.transaction_status !== 'pending') {
+         return res.status(400).json({ message: "Transaction cannot be confirmed. Current status is not 'pending'." })
       }
+
+      const buyerBalance = await prisma.balance.findUnique({
+         where: { user_id: transaction.user_id },
+      })
+
+      if(!buyerBalance || buyerBalance.amount.toNumber() < transaction.total_price.toNumber()) {
+         return res.status(400).json({ message: "Buyer has insufficient balance to complete this transaction" })
+      }
+
+      await prisma.balance.update({
+         where: { user_id: transaction.user_id },
+         data: { amount: { decrement: transaction.total_price.toNumber() } }
+      })
+
+      await prisma.balance_History.create({
+         data: {
+            user_id: transaction.user_id,
+            transaction_type: 'debit',
+            amount: transaction.total_price.toNumber()
+         }
+      })
+
+      const update_product_stock = []
+      for (const detail of transaction.details) {
+         update_product_stock.push(
+            prisma.products.update({
+               where: { id: detail.product_id },
+               data: { stock: { decrement: detail.quantity } }
+            })
+         )
+      }
+
+      await prisma.$transaction(update_product_stock)
+
+      const updatedTransaction = await prisma.transactions.update({
+         where: { id: parseInt(transaction_id)},
+         data: { transaction_status: "success"}
+      })
+
+      console.log("Transaction confirmed successfully.")
+      res.status(200).json({ message: "Transaction confirmed successfully", transaction: updatedTransaction })
    } 
    catch (error) {
-      
+      console.error(`Error confirming transaction: ${error}`);
+        res.status(500).json({ message: "Something went wrong" });
    }
 }
