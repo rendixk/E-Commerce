@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express'
 import { prisma } from '../prisma.js'
 import type { AuthRequest } from '../middleware/authMiddleware.js'
-import { subtle } from 'crypto'
 
 export const createTransaction = async (req: AuthRequest, res: Response) => {
    console.log("Creating new transaction...")
