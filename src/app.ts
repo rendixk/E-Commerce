@@ -5,6 +5,7 @@ import authRoute from './route/authRoute.js'
 import userAuth from './route/userRoute.js'
 import productRouter from './route/productRoute.js'
 import cartRoute from './route/cartRoute.js'
+import transactionRoute from './route/transactionRoute.js'
 
 const app = express()
 
@@ -16,5 +17,6 @@ app.use('/auth', authRoute)
 app.use('/users', userAuth)
 app.use('/product', productRouter)
 app.use('/cart', cartRoute)
+app.use('/transactions', transactionRoute)
 
 export default app
