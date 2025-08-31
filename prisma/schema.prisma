@@ -98,7 +98,7 @@ model Carts {
   user        Users        @relation(fields: [user_id], references: [id])
   cart_items  Cart_Items[]
 
-  transaction Transactions?
+  transaction Transactions[]
 }
 
 model Cart_Items {
