@@ -6,6 +6,8 @@ import userAuth from './route/userRoute.js'
 import productRouter from './route/productRoute.js'
 import cartRoute from './route/cartRoute.js'
 import transactionRoute from './route/transactionRoute.js'
+import categoryRoute from './route/categoryRoute.js'
+import clearRoute from './route/utilsRoute.js'
 
 const app = express()
 
@@ -18,5 +20,7 @@ app.use('/users', userAuth)
 app.use('/product', productRouter)
 app.use('/cart', cartRoute)
 app.use('/transactions', transactionRoute)
+app.use('/categories', categoryRoute)
+app.use('/clear', clearRoute)
 
 export default app
