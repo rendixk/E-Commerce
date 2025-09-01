@@ -8,7 +8,7 @@ export const isSeller = (req: AuthRequest, res: Response, next: NextFunction) =>
       next()
    }
    else {
-      res.status(403).json({ message: "Forbidden: You do not have the required presmisson." })
+      res.status(403).json({ message: "Forbidden: You do not have the seller presmisson." })
    }
 }
 
@@ -18,6 +18,6 @@ export const isbuyer = (req: AuthRequest, res: Response, next: NextFunction) => 
    if (userRole === "buyer") {
        next()
    } else {
-       res.status(403).json({ message: "Forbidden: You do not have the required permission." });
+       res.status(403).json({ message: "Forbidden: You do not have the buyer permission." });
    }
 }
