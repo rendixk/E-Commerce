@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || '23da79436b0891fac9ee18b563170ed8e66fe52baa439b5ed23562735d460e95';
+const JWT_SECRET = process.env.JWT_SECRET_KEY as string
 
 // Deklarasi tipe kustom untuk Express Request agar bisa menambahkan properti 'user'
 export interface AuthRequest extends Request {

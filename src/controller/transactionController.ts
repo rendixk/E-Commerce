@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express'
+import type { Response } from 'express'
 import { prisma } from '../prisma.js'
 import type { AuthRequest } from '../middleware/authMiddleware.js'
 
@@ -65,6 +65,86 @@ export const createTransaction = async (req: AuthRequest, res: Response) => {
    }
    catch (error) {
       console.error(`Error creating transaction: ${error}`)
+      res.status(500).json({ message: "Something went wrong" })
+   }
+}
+
+export const transactionHistory = async (req: AuthRequest, res: Response) => {
+   console.log("Fethcing transaction history...")
+   const userId = req.user?.id
+   const userRole = req.user?.role
+
+   if(!userId || !userRole) {
+      return res.status(401).json({ message: "Untahorized." })
+   }
+
+   try {
+      let transactions
+
+      if (userRole === 'buyer') {
+         console.log(`Buyer with ID ${userId} is fetching their store's transaction history.`)
+         transactions = await prisma.transactions.findMany({
+            where: { user_id: userId },
+            include: {
+               details: {
+                  include: {
+                     product: true
+                  },
+               },
+               cart: true
+            },
+            orderBy: {
+               created_at: 'desc'
+            }
+         })
+      }
+      else if (userRole === 'seller') {
+         console.log(`Seller with ID ${userId} is fetching their store's transaction history.`)
+         const store = await prisma.stores.findFirst({
+            where: { user_id: userId },
+         })
+
+         if (!store) {
+            return res.status(404).json({ message: "Store not found for this seller"})
+         }
+
+         transactions = await prisma.transactions.findMany({
+            where: {
+               details: {
+                  some: {
+                     product: {
+                        store_id: store.id
+                     },
+                  },
+               },
+            },
+            include: {
+               details: {
+                  include: {
+                     product: true
+                  },
+               },
+               user: {
+                  select: {
+                     username: true,
+                     email: true,
+                  },
+               },
+            },
+            orderBy: {
+               created_at: 'desc'
+            }
+         })
+      }
+      else {
+         return res.status(403).json({ message: "Forbidden: Invalid user role." })
+      }
+
+      console.log("Transaction history fetched successfully.")
+      res.status(200).json({ message: "Transaction history fetched successfully", Transaction: transactions })
+   }
+   catch (error) {
+      console.error(`Error fetching transaction history.`)
       res.status(500).json({ message: "Something went wrong" })
    }
 }
