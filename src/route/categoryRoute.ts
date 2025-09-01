@@ -6,7 +6,7 @@ import { createCategory, getAllCategories, updateCategory, deleteCategory } from
 const router = Router()
 
 //This endpoint only can access for seller already authenticated
-router.post('/create', authenticateToken, isSeller, createCategory)
+router.post('/add', authenticateToken, isSeller, createCategory)
 router.put('/:id', authenticateToken, isSeller, updateCategory)
 router.delete('/:id', authenticateToken, isSeller, deleteCategory)
 

@@ -73,7 +73,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
    console.log("Deleting category...")
 
    if(!req.params.id) {
-      return res.status(400).json({ message: "Caegory ID is required" })
+      return res.status(400).json({ message: "Category ID is required" })
    }
    const categoryId = parseInt(req.params.id, 10)
    
