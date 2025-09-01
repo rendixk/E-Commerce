@@ -7,7 +7,8 @@ import productRouter from './route/productRoute.js'
 import cartRoute from './route/cartRoute.js'
 import transactionRoute from './route/transactionRoute.js'
 import categoryRoute from './route/categoryRoute.js'
-import clearRoute from './route/utilsRoute.js'
+import clearRoute from './route/resetRoute.js'
+import seedRoute from './route/seedRoute.js'
 
 const app = express()
 
@@ -17,10 +18,11 @@ app.use(cors())
 app.use('/', opening)
 app.use('/auth', authRoute)
 app.use('/users', userAuth)
-app.use('/product', productRouter)
+app.use('/products', productRouter)
 app.use('/cart', cartRoute)
 app.use('/transactions', transactionRoute)
 app.use('/categories', categoryRoute)
-app.use('/clear', clearRoute)
+app.use('/reset', clearRoute)
+app.use('/seed', seedRoute)
 
 export default app

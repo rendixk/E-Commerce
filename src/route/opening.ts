@@ -5,8 +5,8 @@ const router = Router()
 router.get('/', (req, res) => {
    const data = [{
       "status": 200,
-      "question": "Kok bisa wok?",
-      "answer": "25 Agustus 2025"
+      "question": "How did this API work?",
+      "answer": "Ask who create this API"
    }]
    console.log("Accessed successfully")
    res.json(data)
