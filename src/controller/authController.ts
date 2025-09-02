@@ -56,6 +56,11 @@ export const registerSeller = async (req: Request, res: Response) => {
    }
 
    try {
+      const existingUsername = await prisma.users.findFirst({ where: { username } })
+      if(existingUsername) {
+         return res.status(409).json({ message: "Username already in use"  })
+      }
+
       const existingUser = await prisma.users.findUnique({ where: { email } })
       if(existingUser) {
          return res.status(409).json({ message: "Email already in use" })
