@@ -6,13 +6,13 @@ import chalk from 'chalk'
 
 //Register for seller role
 export const registerBuyer = async (req: Request, res: Response) => {
-   console.log(chalk.cyan("Registering a new buyer..."))
-   const { username, email, password } = req.body
-   if(!username || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" })
-   }
-
    try {
+      console.log(chalk.cyan("Registering a new buyer..."))
+      const { username, email, password } = req.body
+      if(!username || !email || !password) {
+         return res.status(400).json({ message: "All fields are required" })
+      }
+
       const existingUsername = await prisma.users.findFirst({ where: { username } })
       if(existingUsername) {
          return res.status(409).json({ message: "Username already in use"  })
