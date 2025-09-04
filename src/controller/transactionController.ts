@@ -1,9 +1,10 @@
 import type { Response } from 'express'
 import { prisma } from '../prisma.js'
 import type { AuthRequest } from '../middleware/authMiddleware.js'
+import chalk from 'chalk'
 
 export const createTransaction = async (req: AuthRequest, res: Response) => {
-   console.log("Creating new transaction...")
+   console.log(chalk.cyan("Creating new transaction..."))
    const userId = req.user?.id
 
    if(!userId) {
@@ -60,17 +61,17 @@ export const createTransaction = async (req: AuthRequest, res: Response) => {
          where: { cart_id: cart.id }
       })
 
-      console.log("Transaction created successfully.")
+      console.log(chalk.green("Transaction created successfully."))
       res.status(201).json({ message: "Transaction successfully", Transaction: transaction })
    }
    catch (error) {
-      console.error(`Error creating transaction: ${error}`)
+      console.error(chalk.red(`Error creating transaction: ${error}`))
       res.status(500).json({ message: "Something went wrong" })
    }
 }
 
 export const transactionHistory = async (req: AuthRequest, res: Response) => {
-   console.log("Fethcing transaction history...")
+   console.log(chalk.cyan("Fetching transaction history..."))
    const userId = req.user?.id
    const userRole = req.user?.role
 
@@ -140,17 +141,17 @@ export const transactionHistory = async (req: AuthRequest, res: Response) => {
          return res.status(403).json({ message: "Forbidden: Invalid user role." })
       }
 
-      console.log("Transaction history fetched successfully.")
+      console.log(chalk.green("Transaction history fetched successfully."))
       res.status(200).json({ message: "Transaction history fetched successfully", Transaction: transactions })
    }
    catch (error) {
-      console.error(`Error fetching transaction history.`)
+      console.error(chalk.red(`Error fetching transaction history: ${error}`))
       res.status(500).json({ message: "Something went wrong" })
    }
 }
 
 export const confirmTransaction = async (req: AuthRequest, res: Response) => {
-   console.log("Confirming transaction...")
+   console.log(chalk.cyan("Confirming transaction..."))
    const { transaction_id } = req.body
    const userId = req.user?.id
    const userRole = req.user?.role
@@ -211,11 +212,11 @@ export const confirmTransaction = async (req: AuthRequest, res: Response) => {
          data: { transaction_status: "success"}
       })
 
-      console.log("Transaction confirmed successfully.")
+      console.log(chalk.green("Transaction confirmed successfully."))
       res.status(200).json({ message: "Transaction confirmed successfully", transaction: updatedTransaction })
    } 
    catch (error) {
-      console.error(`Error confirming transaction: ${error}`);
-        res.status(500).json({ message: "Something went wrong" });
+      console.error(chalk.red(`Error confirming transaction: ${error}`))
+      res.status(500).json({ message: "Something went wrong" })
    }
 }
