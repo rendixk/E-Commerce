@@ -1,15 +1,19 @@
 import type { Request, Response } from 'express'
 import { prisma } from '../prisma.js'
 import type { AuthRequest } from '../middleware/authMiddleware.js'
+import chalk from 'chalk'
 
 // add product to cart 
 export const addToCart = async (req: AuthRequest, res: Response) => {
-   console.log("Adding to cart...")
+   console.log(chalk.cyan("Adding to cart..."))
    const { product_id, quantity } = req.body
    const userId = req.user?.id
 
-   if(!userId || !product_id || !quantity) {
-      return res.status(400).json({ message: "User ID, Product ID, and Quantity are requires" })
+   if(!userId) {
+      return res.status(400).json({ message: "User not authenticated" })
+   }
+   if(!product_id || !quantity) {
+      return res.status(400).json({ message: "Product ID and quantity are required." })
    }
 
    try {
@@ -48,13 +52,13 @@ export const addToCart = async (req: AuthRequest, res: Response) => {
 
    } 
    catch (error) {
-      console.error("Error adding item to cart:", error);
+      console.error(chalk.cyan(`Error adding item to cart: ${error}`));
       res.status(500).json({ message: "Something went wrong" });
    }
 }
 
 export const getCart = async (req: AuthRequest, res: Response) => {
-   console.log("Getting user cart...")
+   console.log(chalk.cyan("Getting user cart..."))
    const userId = req.user?.id
 
    if(!userId) {
@@ -87,17 +91,18 @@ export const getCart = async (req: AuthRequest, res: Response) => {
 }
 
 export const deleteCartItem = async (req: AuthRequest, res: Response) => {
-   console.log("Deleting item from cart...")
+   console.log(chalk.cyan("Deleting item from cart..."))
    const userId = req.user?.id
+   const { id } = req.params
    
    if(!userId) {
       return res.status(404).json({ message: "User ID is required" })
    }
 
-   if (!req.params.id) {
+   if (!id || isNaN(parseInt(id, 10))) {
       return res.status(400).json({ message: "Cart item ID is required" });
    }
-   const cartItemId = parseInt(req.params.id, 10)
+   const cartItemId = parseInt(id, 10)
 
 
    try {
