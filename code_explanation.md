@@ -11,6 +11,7 @@ These functions are intended for the seller's functionality, which involves mana
 - categoryController.ts: All of its functions (createCategory, updateCategory, deleteCategory) can only be accessed by sellers to manage product categories.
 - productController.ts: All of its functions (createProduct, updateProduct, deleteProduct) can only be accessed by sellers to manage their products.
 - transactionController.ts: The confirmTransaction and transactionHistory functions (when the role is seller) are for sellers to manage and view the transaction history related to their store.
+- storeController.ts: This file is a new component designed specifically to manage the store profile for sellers. It handles the essential business logic for a seller's store, which was missing from the previous controllers,
 
 ---
 
