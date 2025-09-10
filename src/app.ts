@@ -9,6 +9,7 @@ import transactionRoute from './route/transactionRoute.js'
 import categoryRoute from './route/categoryRoute.js'
 import clearRoute from './route/resetRoute.js'
 import seedRoute from './route/seedRoute.js'
+import storeRoute from './route/storeRoute.js'
 
 const app = express()
 
@@ -18,11 +19,12 @@ app.use(cors())
 app.use('/', opening)
 app.use('/auth', authRoute)
 app.use('/users', userAuth)
+app.use('/store', storeRoute)
 app.use('/products', productRouter)
 app.use('/cart', cartRoute)
 app.use('/transactions', transactionRoute)
 app.use('/categories', categoryRoute)
-app.use('/reset', clearRoute)
+app.use(clearRoute)
 app.use('/seed', seedRoute)
 
 export default app

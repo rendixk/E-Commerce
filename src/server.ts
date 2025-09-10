@@ -4,7 +4,15 @@ import chalk from 'chalk'
 
 const PORT = 3000
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
    // console.log(`Server is running on http://localhost:${PORT}`)
    console.log(chalk.bold.green(`Server is running on http://localhost:3000`))
+})
+
+process.on('SIGINT', async () => {
+   console.log(chalk.yellow('Shutting down server...'))
+   server.close(() => {
+      console.log(chalk.yellow('Server gracefully terminated.'))
+      process.exit(0)
+   })
 })
