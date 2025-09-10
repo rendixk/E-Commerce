@@ -57,6 +57,7 @@ export const addToCart = async (req: AuthRequest, res: Response) => {
    }
 }
 
+// Get Product from Cart
 export const getCart = async (req: AuthRequest, res: Response) => {
    console.log(chalk.cyan("Getting user cart..."))
    const userId = req.user?.id
@@ -90,6 +91,7 @@ export const getCart = async (req: AuthRequest, res: Response) => {
    }
 }
 
+// Delete item from cart
 export const deleteCartItem = async (req: AuthRequest, res: Response) => {
    console.log(chalk.cyan("Deleting item from cart..."))
    const userId = req.user?.id

@@ -4,7 +4,6 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import chalk from 'chalk'
 
-//Register for seller role
 export const registerBuyer = async (req: Request, res: Response) => {
    try {
       console.log(chalk.cyan("Registering a new buyer..."))
