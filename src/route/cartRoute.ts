@@ -5,7 +5,7 @@ import { addToCart, getCart, deleteCartItem } from '../controller/cartController
 const router = Router()
 
 //router add product to cart
-router.post('/', authenticateToken, addToCart)
+router.post('/add', authenticateToken, addToCart)
 
 //router to view all item inside cart
 router.get('/', authenticateToken, getCart)
