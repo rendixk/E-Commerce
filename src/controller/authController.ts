@@ -98,7 +98,20 @@ export const login = async (req: Request, res: Response) => {
    try {
       const user = await prisma.users.findFirst({
          where: { username },
-         include: { role: true, profiles: true }
+         include: { 
+            role: true, 
+            profiles: true,
+            balance: true,
+            carts: {
+               include: {
+                  cart_items: {
+                     include: {
+                        product: true
+                     }
+                  }
+               }
+            }
+         }
       })
 
       if(!user ||  !(await bcrypt.compare(password, user.password))) {
@@ -109,7 +122,7 @@ export const login = async (req: Request, res: Response) => {
       const token = jwt.sign({ id: user.id, email: user.email, role: user.role.role_name }, process.env.JWT_SECRET_KEY as string, { expiresIn: '1d' });
 
       console.log(chalk.bold.green('Login successful!!'))
-      res.status(200).json({ message: "Login Success", Token: token, User: user})
+      res.status(200).json({ token, user })
    } 
    catch (error) {
       console.error(chalk.bold.red('Login failed:', error));
