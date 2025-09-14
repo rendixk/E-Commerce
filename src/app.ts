@@ -26,7 +26,7 @@ app.use('/uploads', express.static(path.join(projectRoot, 'public', 'uploads')))
 
 app.use('/', opening)
 app.use('/auth', authRoute)
-app.use('/user', profileRoute)
+app.use('/profile', profileRoute)
 app.use('/store', storeRoute)
 app.use('/product', productRouter)
 app.use('/cart', cartRoute)
