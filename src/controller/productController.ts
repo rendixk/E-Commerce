@@ -138,7 +138,7 @@ export const updateProduct = async (req: AuthRequest, res: Response) => {
 // delete product (only seller role)
 export const deleteProduct = async (req: AuthRequest, res: Response) => {
     console.log(chalk.cyan("Deleting product..."))
-    const { id } = req.params;
+    const { id } = req.params
 
     if (req.user?.role !== 'seller') {
         console.log(chalk.red("Forbidden: Only sellers can delete products."))
