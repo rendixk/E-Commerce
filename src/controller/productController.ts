@@ -29,7 +29,7 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
                 store_id: parseInt(store_id, 10),
                 category_id: parseInt(category_id, 10),
             }
-        });
+        })
 
         console.log("Product created successfully.");
         return res.status(201).json({ message: "Product created successfully", Product: newProduct });
@@ -37,7 +37,7 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
         console.error(chalk.red(`Failed to create product: ${error}`));
         return res.status(500).json({ message: "Something went wrong" });
     }
-};
+}
 
 // get all product (public)
 export const getAllProduct = async (req: Request, res: Response) => {
@@ -50,7 +50,7 @@ export const getAllProduct = async (req: Request, res: Response) => {
         console.error(chalk.red('Failed to fetch products:', error));
         return res.status(500).json({ message: 'Failed to fetch products.' });
     }
-};
+}
 
 // get product by ID (public)
 export const getProductById = async (req: Request, res: Response) => {
@@ -78,7 +78,7 @@ export const getProductById = async (req: Request, res: Response) => {
         console.error(chalk.red('Failed to fetch product:', error));
         return res.status(500).json({ message: 'Failed to fetch product.' });
     }
-};
+}
 
 // update product (only seller role)
 export const updateProduct = async (req: AuthRequest, res: Response) => {
@@ -133,20 +133,20 @@ export const updateProduct = async (req: AuthRequest, res: Response) => {
         console.error(chalk.red('Failed to update product:', error));
         return res.status(500).json({ message: 'Something went wrong' });
     }
-};
+}
 
 // delete product (only seller role)
 export const deleteProduct = async (req: AuthRequest, res: Response) => {
-    console.log(chalk.cyan("Deleting product..."));
+    console.log(chalk.cyan("Deleting product..."))
     const { id } = req.params;
 
     if (req.user?.role !== 'seller') {
-        console.log(chalk.red("Forbidden: Only sellers can delete products."));
-        return res.status(403).json({ message: "Forbidden: Only sellers can delete products." });
+        console.log(chalk.red("Forbidden: Only sellers can delete products."))
+        return res.status(403).json({ message: "Forbidden: Only sellers can delete products." })
     }
 
     if (!id || isNaN(parseInt(id, 10))) {
-        return res.status(400).json({ message: "Invalid product ID provided." });
+        return res.status(400).json({ message: "Invalid product ID provided." })
     }
     const productId = parseInt(id, 10);
 
@@ -156,17 +156,17 @@ export const deleteProduct = async (req: AuthRequest, res: Response) => {
         });
 
         if (!product) {
-            return res.status(404).json({ message: 'Product not found.' });
+            return res.status(404).json({ message: 'Product not found.' })
         }
         
         await prisma.products.delete({
             where: { id: productId },
         });
 
-        console.log('Product deleted successfully.');
-        return res.status(200).json({ message: 'Product deleted successfully.' });
+        console.log('Product deleted successfully.')
+        return res.status(200).json({ message: 'Product deleted successfully.' })
     } catch (error) {
-        console.error(chalk.red('Failed to delete product:', error));
-        return res.status(500).json({ message: 'Failed to delete product.' });
+        console.error(chalk.red('Failed to delete product:', error))
+        return res.status(500).json({ message: 'Failed to delete product.' })
     }
-};
+}

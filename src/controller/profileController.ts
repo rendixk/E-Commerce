@@ -9,7 +9,7 @@ export const createProfile = async (req: AuthRequest, res: Response) => {
    const userId = req.user?.id
    const userEmail = req.user?.email
    const { fullname, address } = req.body
- 
+
    if (!userId || !userEmail) {
      return res.status(401).json({ message: "Unauthorized." })
    }
@@ -55,30 +55,6 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
          where: { user_id: userId },
          include: { user: true }
       })
-
-      // const profile = await prisma.profiles.findUnique({
-      //    where: { user_id: userId },
-      //    include: {
-      //       user: {
-      //          select: {
-      //             email: true,
-      //             role: true
-      //          },
-      //          include: {
-      //             balance: true,
-      //             carts: {
-      //                include: {
-      //                   cart_items: {
-      //                      include: {
-      //                         product: true
-      //                      }
-      //                   }
-      //                }
-      //             }
-      //          }
-      //       }
-      //    }
-      // })
 
       if(!profile) {
          console.log(chalk.yellow("Profile not found for this user."))
