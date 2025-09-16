@@ -4,8 +4,8 @@ import { createProfile, getProfile, updateProfile, getBalance, topupBalance } fr
 
 const router = Router()
 
-router.post('/profile', authenticateToken, createProfile)
-router.put('/profile', authenticateToken, updateProfile);
+router.post('/profile/create', authenticateToken, createProfile)
+router.put('/profile/edit', authenticateToken, updateProfile);
 router.get('/profile', authenticateToken, getProfile);
 router.get('/balance', authenticateToken, getBalance);
 router.post('/balance/topup', authenticateToken, topupBalance);
