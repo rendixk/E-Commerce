@@ -52,6 +52,38 @@ export const getAllProduct = async (req: Request, res: Response) => {
     }
 }
 
+//get product by query (public)
+export const searchProduct = async (req: Request, res: Response) => {
+    console.log(chalk.cyan("Searching for products..."))
+    const { q } = req.query
+
+    if(!q) {
+        console.log("Search query is missing")
+        return res.status(400).json({ message: "Search query is missing." })
+    }
+
+    try {
+        const query = q as string
+        const products = await prisma.products.findMany({
+            where: {
+                product_name: {
+                    contains: query
+                }
+            }
+        })
+        // Manually filter the products to be case-insensitive
+        const caseInsensitiveProducts = products.filter(product => {
+            product.product_name.toLowerCase().includes(query.toLowerCase())
+        })
+
+        console.log(chalk.green(`Found ${caseInsensitiveProducts.length} products matching the query.`))
+        res.status(200).json(products)
+    } 
+    catch (error) {
+        
+    }
+}
+
 // get product by ID (public)
 export const getProductById = async (req: Request, res: Response) => {
     const { id } = req.params;
