@@ -38,7 +38,22 @@ export const registerBuyer = async (req: Request, res: Response) => {
          }
       })
 
-      console.log("New buyer registered successfully.")
+      await prisma.profiles.create({
+         data: {
+            user_id: newUser.id,
+            email: newUser.email,
+            address: ""
+         }
+      })
+
+      await prisma.balance.create({
+         data: {
+            user_id: newUser.id,
+            amount: 0
+         }
+      })
+
+      console.log(chalk.bold.green("New buyer registered successfully."))
       res.status(201).json({ message: "Buyer registration successfully", User: newUser })
    }
    catch(error) {
@@ -79,7 +94,23 @@ export const registerSeller = async (req: Request, res: Response) => {
          role_id: role.id
       }
      })
-      console.log("New seller registered successfully.");
+
+     await prisma.profiles.create({
+      data: {
+         user_id: newUser.id,
+         email: newUser.email,
+         address: "" //default
+      }
+     })
+
+     await prisma.balance.create({
+      data: {
+         user_id: newUser.id,
+         amount: 0
+      }
+     })
+
+      console.log(chalk.bold.green("New seller registered successfully."));
       res.status(201).json({ message: "Seller registration successful.", newUser })
    } 
    catch (error) {
