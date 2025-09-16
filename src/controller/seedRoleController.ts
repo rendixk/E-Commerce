@@ -1,8 +1,9 @@
 import type { Request, Response } from 'express'
 import { prisma } from '../prisma.js'
+import chalk from 'chalk'
 
 export const seedDatabase = async (req: Request, res: Response) => {
-   console.log("Starting database seeding process...")
+   console.log(chalk.cyan("Starting database seeding process..."))
    try {
       const existingRoles = await prisma.roles.findMany()
       if(existingRoles.length === 0) {
@@ -12,7 +13,7 @@ export const seedDatabase = async (req: Request, res: Response) => {
                { role_name: "seller" }
             ]
          })
-         console.log("Roles table seeded successfully.")
+         console.log(chalk.bold.green("Roles table seeded successfully."))
       } 
       else {
          console.log("Roles table already has data. Skipping.")
