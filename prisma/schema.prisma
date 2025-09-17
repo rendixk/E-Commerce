@@ -39,8 +39,7 @@ model Users {
 
 model Profiles {
   id       Int    @id @default(autoincrement())
-  fullname String
-  address  String
+  address  String?
   email    String @unique
   user_id  Int    @unique
   user     Users  @relation(fields: [user_id], references: [id])
