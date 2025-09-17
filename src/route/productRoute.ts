@@ -12,7 +12,7 @@ router.delete('/:id', authenticateToken, deleteProduct)
 
 // Public Router (for all user)
 router.get('/', getAllProduct)
-router.get('/', searchProduct)
+router.get('/search', searchProduct)
 router.get('/:id', getProductById)
 
 export default router
