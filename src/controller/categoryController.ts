@@ -41,7 +41,7 @@ export const getAllCategories = async (req: Request, res: Response) => {
    console.log(chalk.cyan("Fetching all categories..."))
    try {
       const categories = await prisma.categories.findMany()
-      console.log("Categories fetched successfully...")
+      console.log(chalk.greenBright("Categories fetched successfully..."))
       res.status(200).json({ message: "Categories fetched successfully", Categories: categories })
    } 
    catch (error) {
