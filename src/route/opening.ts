@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import chalk from 'chalk'
 
 const router = Router()
 
@@ -8,7 +9,7 @@ router.get('/', (req, res) => {
       "question": "How did this API work?",
       "answer": "Ask who create this API"
    }]
-   console.log("Accessed successfully")
+   console.log(chalk.greenBright("Accessed successfully"))
    res.json(data)
 })
 

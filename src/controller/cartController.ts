@@ -59,7 +59,7 @@ export const addToCart = async (req: AuthRequest, res: Response) => {
 
 // Get Product from Cart
 export const getCart = async (req: AuthRequest, res: Response) => {
-   console.log(chalk.cyan("Getting user cart..."))
+   console.log(chalk.cyan("Getting buyer cart..."))
    const userId = req.user?.id
 
    if(!userId) {
