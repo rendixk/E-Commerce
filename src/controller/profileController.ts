@@ -15,8 +15,8 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
    try {
       const profile = await prisma.profiles.findUnique({
          where: { user_id: userId },
-         include: { user: true }
       })
+      
 
       if(!profile) {
          console.log(chalk.yellow("Profile not found for this user."))
@@ -120,11 +120,12 @@ export const topupBalance = async (req: AuthRequest, res: Response) => {
    }
 
    try {
-      const existBalance = await prisma.balance.findUnique({ where: { user_id: userId } })
-      const updatedBalance = await prisma.balance.create({
+      const updatedBalance = await prisma.balance.update({
+         where: { user_id: userId },
          data: {
-            user_id: userId,
-            amount
+            amount: {
+               increment: amount 
+            }
          }
       })
 

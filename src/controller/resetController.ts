@@ -1,15 +1,15 @@
 import type { Request, Response } from 'express'
 import { prisma } from '../prisma.js'
+import chalk from 'chalk'
 
 export const clearDatabase = async (req: Request, res: Response) => {
-   console.log("Clearing all database tables based on schema...")
+   console.log(chalk.cyan("Clearing all database tables based on schema..."))
 
    try {
       // Matikan pemeriksaan kunci asing sementara
       await prisma.$executeRaw`SET FOREIGN_KEY_CHECKS = 0;`;
 
       // Lakukan TRUNCATE pada setiap tabel secara terpisah
-      await prisma.$executeRaw`TRUNCATE TABLE \`Store_Confirmations\`;`;
       await prisma.$executeRaw`TRUNCATE TABLE \`Payments\`;`;
       await prisma.$executeRaw`TRUNCATE TABLE \`Transaction_Details\`;`;
       await prisma.$executeRaw`TRUNCATE TABLE \`Balance_History\`;`;
@@ -26,11 +26,11 @@ export const clearDatabase = async (req: Request, res: Response) => {
 
       await prisma.$executeRaw`SET FOREIGN_KEY_CHECKS = 1;`;
 
-      console.log("All tables have been cleared and IDs have been reset.");
+      console.log(chalk.greenBright("All tables have been cleared and IDs have been reset."))
       res.status(200).json({ message: "All tables cleared successfully and ID sequences have been reset." });
    }
    catch (error) {
-      console.error(`Error clearing database: ${error}`)
+      console.error(chalk.redBright(`Error clearing database: ${error}`))
       res.status(500).json({ message: "Failed to clear database" })
    }
 }
