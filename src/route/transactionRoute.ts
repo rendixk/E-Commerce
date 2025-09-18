@@ -1,11 +1,11 @@
 import { Router } from 'express'
 import { authenticateToken } from '../middleware/authMiddleware.js'
-import { createTransaction, transactionHistory ,confirmTransaction } from '../controller/transactionController.js'
+import { createTransaction, confirmTransaction, transactionHistory } from '../controller/transactionController.js'
 
 const router = Router()
 
 //router to create transaction (only for buyer)
-router.post('/', authenticateToken, createTransaction)
+router.post('/checkout', authenticateToken, createTransaction)
 
 //router to confirm transaction (only for seller)
 router.post('/confirm', authenticateToken, confirmTransaction)
