@@ -12,6 +12,7 @@ import categoryRoute from './route/categoryRoute.js'
 import clearRoute from './route/resetRoute.js'
 import seedRoute from './route/seedRoute.js'
 import storeRoute from './route/storeRoute.js'
+import dbCheckRoute from './route/dbCheckRoute.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -26,7 +27,7 @@ app.use('/uploads', express.static(path.join(projectRoot, 'public', 'uploads')))
 
 app.use('/', opening)
 app.use('/auth', authRoute)
-app.use('/user', profileRoute)
+app.use('/profile', profileRoute)
 app.use('/store', storeRoute)
 app.use('/product', productRouter)
 app.use('/cart', cartRoute)
@@ -34,5 +35,6 @@ app.use('/transaction', transactionRoute)
 app.use('/category', categoryRoute)
 app.use(clearRoute)
 app.use('/seed', seedRoute)
+app.use('/check', dbCheckRoute)
 
 export default app
