@@ -15,6 +15,17 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
    try {
       const profile = await prisma.profiles.findUnique({
          where: { user_id: userId },
+         include: {
+            user: {
+               select: {
+                  balance: {
+                     select: {
+                        amount: true
+                     }
+                  }
+               }
+            }
+         }
       })
       
 
@@ -49,60 +60,18 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
          return res.status(404).json({ message: "Profile not found: cannot update." })
       }
 
-      const [updateUserName, updateProfile] = await prisma.$transaction([
-         prisma.users.update({
-            where: { id: userId },
-            data: { username }
-         }),
-         prisma.profiles.update({
-            where: { user_id: userId },
-            data: { address }
-         })
-      ])
-      console.log(chalk.green("Profile updated successfully."))
-      res.status(201).json({
-         updateUser: {
-            id: updateUserName.id,
-            username: updateUserName.username,
-            email: updateUserName.email
-         },
-         updateProfile: {
-            address: updateProfile.address,
-            email: updateProfile.email
+      const updateProfile = await prisma.profiles.update({
+         where: { user_id: userId },
+         data: {
+            username,
+            address
          }
       })
+      console.log(chalk.green("Profile updated successfully."))
+      res.status(201).json({ Message: "Profile updated successfully.", UpdatedProfile: updateProfile })
    }
    catch (error) {
       console.error(chalk.red(`Failed to update profile: ${error}`))
-      res.status(500).json({ message: "Something went wrong" })
-   }
-}
-
-
-//user balance 
-export const getBalance = async (req: AuthRequest, res: Response) => {
-   console.log(chalk.cyan("Fetching user balance..."))
-   const userId = req.user?.id
-
-   if(!userId) {
-      return res.status(404).json({ message: "Unathorized" })
-   }
-
-   try {
-      const balance = await prisma.balance.findUnique({
-         where: { user_id: userId},
-         select: { amount: true }
-      })
-      if(!balance) {
-         console.log(chalk.yellow("Balance not found for this user"))
-         return res.status(404).json({ message: "Balance record missing." })
-      }
-
-      console.log(chalk.green("Balance fetched successfully."))
-      res.status(200).json({ amount: balance.amount })
-   } 
-   catch (error) {
-      console.error(chalk.red(`Failed to fetch balance: ${error}`))
       res.status(500).json({ message: "Something went wrong" })
    }
 }
