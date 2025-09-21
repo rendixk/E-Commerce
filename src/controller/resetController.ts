@@ -10,9 +10,10 @@ export const clearDatabase = async (req: Request, res: Response) => {
       await prisma.$executeRaw`SET FOREIGN_KEY_CHECKS = 0;`;
 
       // Lakukan TRUNCATE pada setiap tabel secara terpisah
-      await prisma.$executeRaw`TRUNCATE TABLE \`Payments\`;`;
-      await prisma.$executeRaw`TRUNCATE TABLE \`Transaction_Details\`;`;
       await prisma.$executeRaw`TRUNCATE TABLE \`Balance_History\`;`;
+      await prisma.$executeRaw`TRUNCATE TABLE \`Payments\`;`;
+      await prisma.$executeRaw`TRUNCATE TABLE \`Store_Confirmations\`;`;
+      await prisma.$executeRaw`TRUNCATE TABLE \`Transaction_Details\`;`;
       await prisma.$executeRaw`TRUNCATE TABLE \`Cart_Items\`;`;
       await prisma.$executeRaw`TRUNCATE TABLE \`Transactions\`;`;
       await prisma.$executeRaw`TRUNCATE TABLE \`Carts\`;`;

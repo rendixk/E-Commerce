@@ -3,6 +3,6 @@ import { seedDatabase } from '../controller/seedRoleController.js'
 
 const router = Router()
 
-router.post('/db', seedDatabase)
+router.post('/role', seedDatabase)
 
 export default router
