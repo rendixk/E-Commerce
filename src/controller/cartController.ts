@@ -82,11 +82,11 @@ export const getCart = async (req: AuthRequest, res: Response) => {
          return res.status(404).json({ message: "Cart not found for this user" })
       }
 
-      console.log("User cart fetcehd successfully.")
+      console.log(chalk.greenBright("User cart fetcehd successfully."))
       res.status(200).json({ message: "User cart fetched successfully", Cart: cart })
    } 
    catch (error) {
-      console.error(`Error fetching cart: ${error}`)
+      console.error(chalk.redBright(`Error fetching cart: ${error}`))
       res.status(500).json({ message: "Something went wrong" })
    }
 }
@@ -121,7 +121,7 @@ export const deleteCartItem = async (req: AuthRequest, res: Response) => {
          where: { id: cartItemId },
       });
 
-      console.log("Item deleted from cart successfully");
+      console.log(chalk.redBright("Item deleted from cart successfully"))
       res.status(200).json({ message: "Item deleted from cart." });
   } catch (error) {
       console.error("Error deleting cart item:", error);

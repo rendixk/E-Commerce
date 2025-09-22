@@ -29,91 +29,112 @@ export const registerBuyer = async (req: Request, res: Response) => {
 
       const hashedPassword = await bcrypt.hash(password, 10)
 
-      const newUser = await prisma.users.create({
-         data: {
-            username,
-            email,
-            password:hashedPassword,
-            role_id: role.id
-         }
+      await prisma.$transaction( async (prisma) => {
+         const newUser = await prisma.users.create({
+            data: {
+               username,
+               email,
+               password:hashedPassword,
+               role_id: role.id
+            }
+         })
+   
+         await prisma.profiles.create({
+            data: {
+               user_id: newUser.id,
+               email: newUser.email,
+               username: newUser.username,
+               address: ""
+            }
+         })
+   
+         await prisma.balance.create({
+            data: {
+               user_id: newUser.id,
+               amount: 0
+            }
+         })
+         console.log(chalk.greenBright("Buyer Account created successfully."))
+         res.status(201).json({ message: "Buyer registration successful.", user: newUser })
       })
-
-      await prisma.profiles.create({
-         data: {
-            user_id: newUser.id,
-            email: newUser.email,
-            username: newUser.username,
-            address: ""
-         }
-      })
-
-      await prisma.balance.create({
-         data: {
-            user_id: newUser.id,
-            amount: 0
-         }
-      })
-
-      console.log(chalk.bold.green("New buyer registered successfully."))
-      res.status(201).json({ message: "Buyer registration successfully", User: newUser })
    }
    catch(error) {
       console.error(`Error during buyer registration: ${error}`)
-      res.status(500).json({ message: "Someting went wrong" })
+      res.status(500).json({ message: "Something went wrong" })
    }
 }
 
 export const registerSeller = async (req: Request, res: Response) => {
-   console.log(chalk.cyan("Registering a new seller..."))
-   const { username, email, password } = req.body
-   if(!username || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" })
-   }
-
    try {
+      console.log(chalk.cyan("Registering a new seller..."))
+      const { username, email, password, store_name } = req.body
+      if(!username || !email || !password || !store_name) {
+         return res.status(400).json({ message: "All fields are required" })
+      }
       const existingUsername = await prisma.users.findFirst({ where: { username } })
       if(existingUsername) {
+         console.log(chalk.redBright("username already in use"))
          return res.status(409).json({ message: "Username already in use"  })
       }
 
       const existingUser = await prisma.users.findUnique({ where: { email } })
       if(existingUser) {
+         console.log("email already in use")
          return res.status(409).json({ message: "Email already in use" })
       }
+
       const role = await prisma.roles.findUnique({ where: { role_name: 'seller' }})
       if (!role) {
+         console.log(chalk.redBright("Role 'seller' not found"))
          return res.status(500).json({ message: "Role 'seller' not found." });
-     }
+      }
+
+      const existingStore = await prisma.stores.findFirst({ where: { store_name } })
+        if (existingStore) {
+            return res.status(409).json({ message: "Store name already in use" })
+        }
 
      const hashedPassword = await bcrypt.hash(password, 10)
 
-     const newUser = await prisma.users.create({
-      data: {
-         username,
-         email,
-         password: hashedPassword,
-         role_id: role.id
-      }
-     })
+     await prisma.$transaction(async (prisma) => {
+         const newUser = await prisma.users.create({
+            data: {
+               username,
+               email,
+               password: hashedPassword,
+               role_id: role.id
+            }
+         })
 
-     await prisma.profiles.create({
-      data: {
-         user_id: newUser.id,
-         username: newUser.username,
-         email: newUser.email,
-         address: "" //default
-      }
-     })
+         await prisma.stores.create({
+            data: {
+               user_id: newUser.id,
+               store_name,
+               owner_name: newUser.username,
+               address: ""
+            }
+         })
 
-     await prisma.balance.create({
-      data: {
-         user_id: newUser.id,
-         amount: 0
-      }
-     })
+         await prisma.profiles.create({
+            data: {
+               user_id: newUser.id,
+               email: newUser.email,
+               username: newUser.username,
+               address: ""
+            }
+         })
 
-      console.log(chalk.bold.green("New seller registered successfully."));
-      res.status(201).json({ message: "Seller registration successful.", newUser })
+         await prisma.balance.create({
+            data: {
+               user_id: newUser.id,
+               amount: 0
+            }
+         })
+
+         console.log(chalk.greenBright("Seller Account Created Successfully."))
+         res.status(201).json({ message: "Seller registration successful.", user: newUser })
+     })
+     
    } 
    catch (error) {
       console.error(`Error during buyer registration: ${error}`)
@@ -132,30 +153,65 @@ export const login = async (req: Request, res: Response) => {
       const user = await prisma.users.findFirst({
          where: { username },
          include: { 
-            role: true, 
-            profiles: true,
-            balance: true,
-            carts: {
-               include: {
-                  cart_items: {
-                     include: {
-                        product: true
-                     }
-                  }
-               }
-            }
+            role: true
          }
       })
 
       if(!user ||  !(await bcrypt.compare(password, user.password))) {
-         console.log(chalk.bold.red('Login failed: User not found.'));
+         console.log(chalk.bold.red('Login failed: User not found.'))
          return res.status(400).json({ message: 'Invalid credentials.' })
       }
 
-      const token = jwt.sign({ id: user.id, email: user.email, role: user.role.role_name }, process.env.JWT_SECRET_KEY as string, { expiresIn: '1d' });
+      const token = jwt.sign({ id: user.id, email: user.email, role: user.role.role_name }, process.env.JWT_SECRET_KEY as string, { expiresIn: '1d' })
+
+      let responsData: any = { Token: token, User: user }
+      if(user.role.role_name === 'buyer') {
+         const buyerData = await prisma.users.findUnique({
+            where: { id: user.id },
+            include: {
+               profiles: true,
+               balance: true,
+               carts: {
+                  include: {
+                     cart_items: {
+                        include: {
+                           product: true
+                        }
+                     }
+                  }
+               }
+            }
+         })
+
+         responsData.data = {
+            profile: buyerData?.profiles,
+            balance: buyerData?.balance,
+            cart: buyerData?.carts
+         }
+      }
+
+      else if(user.role.role_name === 'seller') {
+         const sellerData = await prisma.users.findUnique({
+            where: { id: user.id },
+            include: {
+               stores: {
+                  include: {
+                     products: true
+                  },
+               },
+               balance: true,
+            }
+         })
+
+         responsData.data = {
+            store: sellerData?.stores,
+            balance: sellerData?.balance,
+            products: sellerData?.stores?.[0]?.products
+         }
+      }
 
       console.log(chalk.bold.green('Login successful!!'))
-      res.status(200).json({ token, user })
+      res.status(200).json({ Message: "Login Successfull", responsData })
    } 
    catch (error) {
       console.error(chalk.bold.red('Login failed:', error));

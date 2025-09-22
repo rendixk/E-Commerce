@@ -28,7 +28,7 @@ export const createCategory = async (req: AuthRequest, res: Response) => {
          data: { category_name }
       })
 
-      console.log("New category created successfully.")
+      console.log(chalk.greenBright("New category created successfully."))
       res.status(201).json({ message: "Category created successfully", Category: newCategory })
    }
    catch (error) {
