@@ -3,47 +3,47 @@ import { prisma } from "../prisma.js"
 import type { AuthRequest } from "../middleware/authMiddleware.js"
 import chalk from "chalk"
 
-export const createStore = async (req: AuthRequest, res: Response) => {
-    console.log(chalk.cyan("Creating new store..."))
-    const { store_name } = req.body
-    const userId = req.user?.id
-    const userRole = req.user?.role
+// export const createStore = async (req: AuthRequest, res: Response) => {
+//     console.log(chalk.cyan("Creating new store..."))
+//     const { store_name } = req.body
+//     const userId = req.user?.id
+//     const userRole = req.user?.role
 
-    if(!userId || userRole !== 'seller') {
-        console.log(chalk.red("Store creation failed: Unauthorized user or invalid role."))
-        return res.status(403).json({ message: "Only sellers can create a store" })
-    }
+//     if(!userId || userRole !== 'seller') {
+//         console.log(chalk.red("Store creation failed: Unauthorized user or invalid role."))
+//         return res.status(403).json({ message: "Only sellers can create a store" })
+//     }
 
-    if(!store_name) {
-        console.log(chalk.red("Store creation failed: Store name is required."))
-        return res.status(400).json({ message: "Store name is required" })
-    }
+//     if(!store_name) {
+//         console.log(chalk.red("Store creation failed: Store name is required."))
+//         return res.status(400).json({ message: "Store name is required" })
+//     }
 
-    try {
-        const existingStore = await prisma.stores.findFirst({
-            where: { user_id: userId}
-        })
+//     try {
+//         const existingStore = await prisma.stores.findFirst({
+//             where: { user_id: userId}
+//         })
 
-        if(existingStore) {
-            console.log(chalk.yellow("Store already exists for this seller."))
-            return res.status(409).json({ message: "Store already exist for this seller" })
-        }
+//         if(existingStore) {
+//             console.log(chalk.yellow("Store already exists for this seller."))
+//             return res.status(409).json({ message: "Store already exist for this seller" })
+//         }
 
-        const newStore = await prisma.stores.create({
-            data: {
-                store_name,
-                user_id: userId
-            }
-        })
+//         const newStore = await prisma.stores.create({
+//             data: {
+//                 store_name,
+//                 user_id: userId
+//             }
+//         })
 
-        console.log(chalk.green("Store created successfully."))
-        res.status(201).json(newStore)
-    }
-    catch (error) {
-        console.error(chalk.red(`Error during store creation: ${error}`))
-        res.status(500).json({ message: "Something went wrong" })
-    }
-}
+//         console.log(chalk.green("Store created successfully."))
+//         res.status(201).json(newStore)
+//     }
+//     catch (error) {
+//         console.error(chalk.red(`Error during store creation: ${error}`))
+//         res.status(500).json({ message: "Something went wrong" })
+//     }
+// }
 
 export const getMyStore = async (req: AuthRequest, res: Response) => {
     console.log(chalk.cyan("Fetching seller's store..."))
@@ -72,4 +72,32 @@ export const getMyStore = async (req: AuthRequest, res: Response) => {
         console.error(chalk.red(`Error during fetching store: ${error}`))
         res.status(500).json({ message: "Something went wrong" })
     }
+}
+
+export const updateStore = async (req: AuthRequest, res: Response) => {
+    const { owner_name, address } = req.body
+    console.log(chalk.cyan("Editing Seller Store..."))
+    const userId = req.user?.id
+    const userRole = req.user?.role
+
+    if(!userId || userRole !== 'seller') {
+        console.log(chalk.red("Edit store failed: Unauthorized user or invalid role."))
+        return res.status(403).json({ message: "Only sellers can edit their store" })
+    }
+     try {
+        const store = await prisma.stores.update({
+            where: { user_id: userId },
+            data: {
+                owner_name,
+                address
+            }
+        })
+
+        console.log(chalk.greenBright("Store updated successfully."))
+        res.status(201).json({ message: "Store updated successfully.", Store: store })
+     } 
+     catch (error) {
+        console.error(chalk.red(`Error during editing store: ${error}`))
+        res.status(500).json({ message: "Something went wrong" })
+     }
 }

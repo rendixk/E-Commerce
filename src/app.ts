@@ -14,6 +14,12 @@ import seedRoute from './route/seedRoute.js'
 import storeRoute from './route/storeRoute.js'
 import dbCheckRoute from './route/dbCheckRoute.js'
 
+const corsOption = {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const projectRoot = path.resolve(__dirname, '..')
@@ -21,7 +27,7 @@ const projectRoot = path.resolve(__dirname, '..')
 const app = express()
 
 app.use(express.json())
-app.use(cors())
+app.use(cors(corsOption))
 
 app.use('/uploads', express.static(path.join(projectRoot, 'public', 'uploads')))
 
