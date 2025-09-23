@@ -41,6 +41,7 @@ model Profiles {
   id       Int    @id @default(autoincrement())
   address  String?
   email    String @unique
+  username String
   user_id  Int    @unique
   user     Users  @relation(fields: [user_id], references: [id])
 }
@@ -64,7 +65,9 @@ model Balance_History {
 model Stores {
   id                  Int      @id @default(autoincrement())
   store_name          String
-  user_id             Int
+  owner_name          String?
+  address             String?
+  user_id             Int      @unique
   user                Users    @relation(fields: [user_id], references: [id])
   products            Products[]
 }
@@ -111,8 +114,9 @@ model Cart_Items {
 
 model Transactions {
   id                 Int                 @id @default(autoincrement())
+  order_number       String              @unique @default(cuid())
   user_id            Int
-  cart_id            Int?                @unique
+  cart_id            Int?                
   total_price        Decimal // Tipe data diubah menjadi Decimal
   transaction_status String              @default("pending")
   created_at         DateTime            @default(now())
