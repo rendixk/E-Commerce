@@ -31,7 +31,7 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
             }
         })
 
-        console.log("Product created successfully.");
+        console.log(chalk.greenBright("Product created successfully."))
         return res.status(201).json({ message: "Product created successfully", Product: newProduct });
     } catch (error) {
         console.error(chalk.red(`Failed to create product: ${error}`));
