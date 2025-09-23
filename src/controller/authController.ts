@@ -115,15 +115,6 @@ export const registerSeller = async (req: Request, res: Response) => {
             }
          })
 
-         await prisma.profiles.create({
-            data: {
-               user_id: newUser.id,
-               email: newUser.email,
-               username: newUser.username,
-               address: ""
-            }
-         })
-
          await prisma.balance.create({
             data: {
                user_id: newUser.id,
