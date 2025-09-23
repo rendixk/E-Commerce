@@ -3,11 +3,11 @@ import { registerBuyer, registerSeller, login } from '../controller/authControll
 
 const router = Router()
 
-// Endoints for buyer
+// Register for buyer
 router.post('/buyer/register', registerBuyer)
 router.post('/buyer/login', login)
 
-//Endpoint for seller
+// Register for seller
 router.post('/seller/register', registerSeller)
 router.post('/seller/login', login)
 
