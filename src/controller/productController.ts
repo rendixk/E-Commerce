@@ -52,6 +52,48 @@ export const getAllProduct = async (req: Request, res: Response) => {
     }
 }
 
+// get all product (seller)
+export const getMyProduct = async (req: AuthRequest, res: Response) => {
+    const sellerId = req.user?.id;
+    const sellerRole = req.user?.role;
+    
+    if (sellerRole !== 'seller' || !sellerId) {
+        return res.status(403).json({ message: "Access denied. Only authenticated sellers can view this page." });
+    }
+    
+    console.log(chalk.cyan(`Fetching products for seller ID: ${sellerId}...`));
+
+    try {
+        // 1. Ambil Store ID milik seller yang sedang login
+        const store = await prisma.stores.findFirst({
+            where: { user_id: sellerId },
+            select: { id: true }
+        });
+
+        if (!store) {
+            return res.status(404).json({ message: "Store not found for this user." });
+        }
+        const storeId = store.id;
+
+        // 2. KRITIS: Ambil produk HANYA dengan Store ID tersebut
+        const myProducts = await prisma.products.findMany({
+            where: {
+                store_id: storeId, // <--- INI ADALAH FILTER YANG HILANG!
+            },
+        });
+
+        console.log(chalk.greenBright(`Products fetched successfully for store ${storeId}.`));
+        return res.status(200).json({ 
+            message: "Seller products fetched successfully", 
+            product: myProducts 
+        });
+
+    } catch (error) {
+        console.error(chalk.red('Failed to fetch seller products:', error));
+        return res.status(500).json({ message: 'Failed to fetch seller products.' });
+    }
+}
+
 //get product by query (public)
 export const searchProduct = async (req: Request, res: Response) => {
     console.log(chalk.cyan("Searching for products..."))

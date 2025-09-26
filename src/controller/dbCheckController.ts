@@ -143,6 +143,13 @@ export const productTable = async (req: Request, res: Response) => {
                 category: true,
                 price: true,
                 stock: true,
+                store: {
+                    select: {
+                        store_name: true,
+                        owner_name: true,
+                        address: true
+                    }
+                }
             },
         })
 

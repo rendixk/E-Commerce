@@ -115,14 +115,7 @@ export const registerSeller = async (req: Request, res: Response) => {
             }
          })
 
-         await prisma.profiles.create({
-            data: {
-               user_id: newUser.id,
-               email: newUser.email,
-               username: newUser.username,
-               address: ""
-            }
-         })
+        
 
          await prisma.balance.create({
             data: {
@@ -153,7 +146,8 @@ export const login = async (req: Request, res: Response) => {
       const user = await prisma.users.findFirst({
          where: { username },
          include: { 
-            role: true
+            role: true,
+            stores: true
          }
       })
 
