@@ -143,33 +143,73 @@ export const login = async (req: Request, res: Response) => {
    }
 
    try {
-      const user = await prisma.users.findFirst({
+      const userWithPassword = await prisma.users.findFirst({
          where: { username },
          include: { 
             role: true,
             stores: true
          }
       })
-
-      if(!user ||  !(await bcrypt.compare(password, user.password))) {
-         console.log(chalk.bold.red('Login failed: User not found.'))
+      if(!userWithPassword || !(await bcrypt.compare(password, userWithPassword.password))) {
+         console.log(chalk.redBright('Login failed: Invalid credentials.'))
          return res.status(400).json({ message: 'Invalid credentials.' })
       }
 
-      const token = jwt.sign({ id: user.id, email: user.email, role: user.role.role_name }, process.env.JWT_SECRET_KEY as string, { expiresIn: '1d' })
+      const user = await prisma.users.findUnique({
+         where: { id: userWithPassword.id },
+         select: {
+            id: true,
+            email: true,
+            role: {
+               select: {
+                  role_name: true
+               }
+            }
+         }
+      })
+
+      const token = jwt.sign({ id: user?.id, email: user?.email, role: user?.role.role_name }, process.env.JWT_SECRET_KEY as string, { expiresIn: '1d' })
 
       let responsData: any = { Token: token, User: user }
-      if(user.role.role_name === 'buyer') {
+      if(user?.role.role_name === 'buyer') {
          const buyerData = await prisma.users.findUnique({
             where: { id: user.id },
-            include: {
-               profiles: true,
-               balance: true,
+            select: {
+               profiles: {
+                  select: {
+                     username: true,
+                     email: true,
+                     address: true
+                  }
+               },
+               balance: {
+                  select: {
+                     amount: true
+                  }
+               },
                carts: {
-                  include: {
+                  select: {
                      cart_items: {
-                        include: {
-                           product: true
+                        select: {
+                           product: {
+                              select: {
+                                 product_name: true,
+                                 description: true,
+                                 price: true,
+                                 stock: true,
+                                 image: true,
+                                 category: {
+                                    select: {
+                                       category_name: true
+                                    }
+                                 },
+                                 store: {
+                                    select: {
+                                       store_name: true
+                                    }
+                                 }
+                              }
+                           }
                         }
                      }
                   }
@@ -184,23 +224,49 @@ export const login = async (req: Request, res: Response) => {
          }
       }
 
-      else if(user.role.role_name === 'seller') {
+      else if(user?.role.role_name === 'seller') {
          const sellerData = await prisma.users.findUnique({
             where: { id: user.id },
-            include: {
-               stores: {
-                  include: {
-                     products: true
-                  },
+            select: {
+               username: true,
+               email: true,
+               role: {
+                  select: {
+                     role_name: true
+                  }
                },
-               balance: true,
+               stores: {
+                  select: {
+                     store_name: true,
+                     owner_name: true,
+                     address: true,
+                     products: {
+                        select: {
+                           product_name: true,
+                           description: true,
+                           price: true,
+                           stock: true,
+                           image: true,
+                           category: {
+                              select: {
+                                 category_name: true
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               balance: {
+                  select: {
+                     amount: true
+                  }
+               }
             }
          })
 
          responsData.data = {
             store: sellerData?.stores,
-            balance: sellerData?.balance,
-            products: sellerData?.stores?.[0]?.products
+            balance: sellerData?.balance
          }
       }
 

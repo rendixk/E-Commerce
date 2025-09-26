@@ -91,6 +91,67 @@ export const getCart = async (req: AuthRequest, res: Response) => {
    }
 }
 
+export const editCart = async (req: AuthRequest, res: Response) => {
+   console.log(chalk.cyan("Editing Cart Item Quantity..."))
+   const userId = req.user?.id
+   const { quantity } = req.body
+   const { id } = req.params
+
+   if(!userId) {
+      console.log(chalk.redBright("User not authenticated."))
+      return res.status(400).json({ message: "User not authenticated." })
+   }
+
+   if(!id || isNaN(parseInt(id, 10)) || !quantity) {
+      console.log(chalk.redBright("Cart item ID and new quantity are required."))
+      return res.status(400).json({ message: "Cart item ID and new quantity are required." })
+   }
+
+   const cartItemId = parseInt(id, 10)
+   const newQuantity = parseInt(quantity, 10)
+
+   if (newQuantity < 1) {
+      console.log(chalk.redBright("Quantity must be at least 1. Use the delete endpoint to remove the item."))
+      return res.status(400).json({ message: "Quantity must be at least 1. Use the delete endpoint to remove the item." })
+   }
+
+   try {
+      const cartItem = await prisma.cart_Items.findFirst({
+         where: {
+            id: cartItemId,
+            cart: {
+               user_id: userId
+            }
+         },
+         include: {
+            product: true
+         }
+      })
+
+      if(!cartItem) {
+         console.log(chalk.redBright("Cart item not found or does not belong to this user."))
+         return res.status(404).json({ message: "Cart item not found or does not belong to this user." })
+      }
+
+      if(newQuantity < cartItem.product.stock) {
+         console.log(chalk.redBright(`Not enough stock for this product. Max available stock is ${cartItem.product.stock}.`))
+         return res.status(400).json({ message: `Not enough stock for this product. Max available stock is ${cartItem.product.stock}.` })
+      }
+
+      const updatedItem = await prisma.cart_Items.update({
+         where: { id: cartItemId },
+         data: { quantity: newQuantity }
+      })
+
+      console.log(chalk.greenBright("Cart item quantity updated successfully."))
+      res.status(200).json({ message: "Cart item quantity updated.", item: updatedItem })
+   } 
+   catch (error) {
+      console.error(chalk.redBright(`Error updating cart item: ${error}`))
+      res.status(500).json({ messgae: "Something went wrong." })
+   }
+}
+
 // Delete item from cart
 export const deleteCartItem = async (req: AuthRequest, res: Response) => {
    console.log(chalk.cyan("Deleting item from cart..."))
