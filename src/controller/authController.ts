@@ -170,7 +170,7 @@ export const login = async (req: Request, res: Response) => {
 
       const token = jwt.sign({ id: user?.id, email: user?.email, role: user?.role.role_name }, process.env.JWT_SECRET_KEY as string, { expiresIn: '1d' })
 
-      let responsData: any = { Token: token, User: user }
+      let responsData: any = { Token: token }
       if(user?.role.role_name === 'buyer') {
          const buyerData = await prisma.users.findUnique({
             where: { id: user.id },
