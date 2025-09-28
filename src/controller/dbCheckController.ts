@@ -112,13 +112,8 @@ export const categoryTable = async (req: Request, res: Response) => {
     console.log(chalk.cyan("Fetching All Category Table From Database..."))
     try {
         const category = await prisma.categories.findMany({
-            include: {
-                products: {
-                    select: {
-                        product_name: true,
-                        stock: true
-                    }
-                }
+            orderBy: {
+                id: 'asc'
             }
         })
 
