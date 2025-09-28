@@ -237,6 +237,7 @@ export const login = async (req: Request, res: Response) => {
                },
                stores: {
                   select: {
+                     id: true,
                      store_name: true,
                      owner_name: true,
                      address: true,
