@@ -1,4 +1,4 @@
-import type { Response } from "express"
+import type { Request, Response } from "express"
 import { prisma } from "../prisma.js"
 import type { AuthRequest } from "../middleware/authMiddleware.js"
 import chalk from "chalk"
@@ -28,6 +28,47 @@ export const getMyStore = async (req: AuthRequest, res: Response) => {
     } 
     catch (error) {
         console.error(chalk.red(`Error during fetching store: ${error}`))
+        res.status(500).json({ message: "Something went wrong" })
+    }
+}
+
+export const getStoreDetail = async (req: Request, res: Response) => {
+    console.log(chalk.cyan("Fetching store detail and its products..."))
+    const { id } = req.params
+
+    if(!id || isNaN(parseInt(id, 10))) {
+        console.log(chalk.redBright("Invalid store ID provided."))
+        return res.status(400).json({ message: "Invalid store ID provided." })
+    }
+
+    const store_id = parseInt(id, 10)
+
+    try {
+        const storeDetail = await prisma.stores.findUnique({
+            where: { id: store_id },
+            include: {
+                products: {
+                    select: {
+                        id: true,
+                        product_name: true,
+                        price: true,
+                        image: true,
+                        stock: true
+                    }
+                }
+            }
+        })
+
+        if(!storeDetail) {
+            console.log(chalk.redBright("Store not found."))
+            return res.status(404).json({ message: "Store not found." })
+        }
+
+        console.log(chalk.green("Store detail fetched successfully."))
+        return res.status(200).json({ message: "Store detail fetched successfully", Store: storeDetail })
+    } 
+    catch (error) {
+        console.error(chalk.red(`Error during fetching store detail: ${error}`))
         res.status(500).json({ message: "Something went wrong" })
     }
 }
