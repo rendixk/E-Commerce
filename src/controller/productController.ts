@@ -43,21 +43,12 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
 export const getAllProduct = async (req: Request, res: Response) => {
     console.log(chalk.cyan("Fetching all products..."));
     try {
-        const product = await prisma.products.findMany({
-            include: {
-                store: {
-                    select: {
-                        id: true,
-                        store_name: true
-                    }
-                }
-            }
-        })
+        const product = await prisma.products.findMany()
         console.log(chalk.greenBright(`Products fetched successfully.`))
         return res.status(200).json({ message: "Products fetched successfully", product });
     } catch (error) {
-        console.error(chalk.red('Failed to fetch products:', error));
-        return res.status(500).json({ message: 'Failed to fetch products.' });
+        console.error(chalk.red('Failed to fetch products:', error))
+        return res.status(500).json({ message: 'Failed to fetch products.' })
     }
 }
 
