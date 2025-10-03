@@ -94,36 +94,47 @@ export const getMyProduct = async (req: AuthRequest, res: Response) => {
     }
 }
 
-//get product by query (public)
 export const searchProduct = async (req: Request, res: Response) => {
-    console.log(chalk.cyan("Searching for products..."))
-    const { q } = req.query
+    console.log(chalk.cyan("Searching for products..."));
+    
+    const { q, category_id } = req.query; 
 
-    if(!q) {
-        console.log("Search query is missing")
-        return res.status(400).json({ message: "Search query is missing." })
+    // Inisialisasi kondisi WHERE utama
+    let whereCondition: any = {};
+    
+    // 1. KONDISI KATEGORI
+    if (category_id) {
+        const catId = parseInt(category_id as string, 10);
+        if (!isNaN(catId)) { 
+            whereCondition.category_id = catId;
+        }
+    }
+
+    if (q) {
+        const query = (q as string).toLowerCase();
+
+        whereCondition.product_name = {
+            contains: query,
+        };
+    }
+
+    if (Object.keys(whereCondition).length === 0) {
+        console.log("No search query or filter applied, fetching all.");
     }
 
     try {
-        const query = q as string
         const products = await prisma.products.findMany({
-            where: {
-                product_name: {
-                    contains: query
-                }
-            }
-        })
-        // Manually filter the products to be case-insensitive
-        const caseInsensitiveProducts = products.filter(product => {
-            return product.product_name.toLowerCase().includes(query.toLowerCase())
-        })
+            where: whereCondition, 
+        });
 
-        console.log(chalk.green(`Found ${caseInsensitiveProducts.length} products matching the query.`))
-        res.status(200).json(products)
-    } 
-    catch (error) {
-        console.error(`Error when search for product: ${error}`)
-        res.status(500).json({ message: "Something went wrong" })
+        console.log(chalk.green(`Found ${products.length} products matching the criteria.`));
+        res.status(200).json({ 
+            message: "Products fetched successfully based on search criteria",
+            product: products 
+        });
+    } catch (error) {
+        console.error(chalk.red('FATAL Error in searchProduct:', error));
+        res.status(500).json({ message: "Something went wrong on the server." });
     }
 }
 

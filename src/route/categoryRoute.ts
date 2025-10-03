@@ -10,6 +10,6 @@ router.put('/:id', authenticateToken, updateCategory)
 router.delete('/:id', authenticateToken, deleteCategory)
 
 //This endpoint can access by every user that already logged (buyer or seller)
-router.get('/', authenticateToken, getAllCategories)
+router.get('/', getAllCategories)
 
 export default router
