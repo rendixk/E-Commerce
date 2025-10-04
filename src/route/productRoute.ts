@@ -1,7 +1,15 @@
 import { Router} from 'express'
 import { authenticateToken } from '../middleware/authMiddleware.js'
 import upload from '../middleware/uploadMiddleware.js'
-import { createProduct, getAllProduct, getMyProduct, searchProduct, getProductById, updateProduct, deleteProduct } from '../controller/productController.js'
+import { 
+    createProduct, 
+    getAllProduct, 
+    getMyProduct, 
+    searchProduct, 
+    getProductById, 
+    updateProduct, 
+    deleteProduct
+ } from '../controller/productController.js'
 
 const router = Router()
 
