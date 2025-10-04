@@ -64,7 +64,6 @@ export const getMyProduct = async (req: AuthRequest, res: Response) => {
     console.log(chalk.cyan(`Fetching products for seller ID: ${sellerId}...`));
 
     try {
-        // 1. Ambil Store ID milik seller yang sedang login
         const store = await prisma.stores.findFirst({
             where: { user_id: sellerId },
             select: { id: true }
@@ -75,10 +74,9 @@ export const getMyProduct = async (req: AuthRequest, res: Response) => {
         }
         const storeId = store.id;
 
-        // 2. KRITIS: Ambil produk HANYA dengan Store ID tersebut
         const myProducts = await prisma.products.findMany({
             where: {
-                store_id: storeId, // <--- INI ADALAH FILTER YANG HILANG!
+                store_id: storeId
             },
         });
 
@@ -95,14 +93,12 @@ export const getMyProduct = async (req: AuthRequest, res: Response) => {
 }
 
 export const searchProduct = async (req: Request, res: Response) => {
-    console.log(chalk.cyan("Searching for products..."));
+    console.log(chalk.cyan("Searching for products..."))
     
-    const { q, category_id } = req.query; 
+    const { q, category_id } = req.query
 
-    // Inisialisasi kondisi WHERE utama
-    let whereCondition: any = {};
+    let whereCondition: any = {}
     
-    // 1. KONDISI KATEGORI
     if (category_id) {
         const catId = parseInt(category_id as string, 10);
         if (!isNaN(catId)) { 
